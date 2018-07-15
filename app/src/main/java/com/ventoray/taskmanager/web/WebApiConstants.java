@@ -8,15 +8,11 @@ import com.ventoray.taskmanager.BuildConfig;
 
 public class WebApiConstants {
 
-    public static final int HTTP_RESPONSE_OK = 200;
-
     //TODO remove this and use dynamic keys when user logs in maybe
     public static final String TEST_API_KEY = BuildConfig.TEST_API_KEY;
     public static final String TEST_SERVER_IP_ADDRESS = BuildConfig.TEST_SERVER_IP_ADDRESS;
 
     public static final String BASE_URL = "https://"+TEST_SERVER_IP_ADDRESS+"/task_manager/v1";
-
-
 
     class HttpPath {
         public static final String TASKS = "tasks";
@@ -30,6 +26,13 @@ public class WebApiConstants {
         public static final String EMAIL = "email";
         public static final String PASSWORD = "password";
         public static final String TASK = "task";
+    }
+
+    class HttpMethod {
+        public static final String POST = "POST";
+        public static final String GET = "GET";
+        public static final String PUT = "PUT";
+        public static final String DELETE = "DELETE";
     }
 
     class DbVariables {

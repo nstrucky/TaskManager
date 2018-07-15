@@ -32,7 +32,7 @@ public class WebAsyncTask extends AsyncTask<URL, Void, Task[]> {
     @Override
     protected Task[] doInBackground(URL... urls) {
         URL url = urls[0];
-        return (Task[]) WebQueryUtils.makeHttpUrlRequest(url, sslContext);
+        return WebQueryUtils.makeHttpUrlRequest(url, sslContext);
     }
 
     @Override
