@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Task Manager</string>
+
+    <!--button names-->
+    <string name="button_get_all_tasks">Get All Tasks</string>
+
+
+    <!--status names-->
+    <string name="status_not_started">Not Started</string>
+    <string name="status_in_progress">In Progress</string>
+    <string name="status_done">Done</string>
+    <string name="status_error">Error</string>
+
+    <!--preview text for development-->
+    <string name="tools_task_name">Clean the kitchen</string>
+    <string name="tools_timestamp">6/01/2015 16:05:00</string>
+    <string name="tools_status">In Progress</string>
+
+</resources>

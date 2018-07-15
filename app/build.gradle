@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+//Retreives the keystore.properties file and creates a Properties object
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+android {
+    signingConfigs {
+        config {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword  keystoreProperties['keyPassword']
+            storeFile file("$rootDir\\" +  keystoreProperties['storeFile'])
+            storePassword  keystoreProperties['storePassword']
+        }
+    }
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.ventoray.taskmanager"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        /**
+         * TEST_API_KEY stored in gradle.properties file
+         * trying this strategy for storing an API key for testing, note if an app were
+         * to be built and needs a permanent api key, then the keystore properties option would be used
+         */
+        buildConfigField("String", "TEST_API_KEY", TEST_API_KEY)
+        buildConfigField("String", "TEST_SERVER_IP_ADDRESS", TEST_SERVER_IP_ADDRESS)
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    //ui
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
