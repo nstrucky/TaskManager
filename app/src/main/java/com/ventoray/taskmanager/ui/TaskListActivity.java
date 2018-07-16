@@ -16,7 +16,6 @@ import com.ventoray.taskmanager.web.WebAsyncTask;
 import com.ventoray.taskmanager.web.WebQueryUtils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -24,7 +23,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static com.ventoray.taskmanager.web.WebApiConstants.BASE_URL;
@@ -91,7 +89,7 @@ public class TaskListActivity extends AppCompatActivity
     @Override
     public void onTaskClicked(int position) {
         Task task = taskList.get(position);
-        Intent intent = new Intent(getApplicationContext(), TaskDetails.class);
+        Intent intent = new Intent(getApplicationContext(), TaskDetailsActivity.class);
         intent.putExtra(TASK_PARCELABLE_KEY, task);
         startActivity(intent);
     }
