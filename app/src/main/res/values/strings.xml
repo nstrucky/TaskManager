@@ -16,4 +16,16 @@
     <string name="tools_timestamp">6/01/2015 16:05:00</string>
     <string name="tools_status">In Progress</string>
 
+
+    <string name="name">Name</string>
+    <string name="status">Status</string>
+    <string name="created_at">Created</string>
+
+
+    <!--Task Status-->
+    <string name="not_started">Not Started</string>
+    <string name="in_progress">In Progress</string>
+    <string name="completed">Completed</string>
+
+
 </resources>

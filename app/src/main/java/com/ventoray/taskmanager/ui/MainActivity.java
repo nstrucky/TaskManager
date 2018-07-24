@@ -13,7 +13,8 @@ import com.ventoray.taskmanager.R;
 public class MainActivity extends AppCompatActivity {
 
 
-    Button getAllTasksButton;
+    private Button getAllTasksButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
