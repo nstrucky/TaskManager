@@ -17,10 +17,13 @@
     <string name="tools_status">In Progress</string>
 
 
+    <string name="task">Task</string>
     <string name="name">Name</string>
     <string name="status">Status</string>
     <string name="created_at">Created</string>
 
+    <!--actions-->
+    <string name="save">Save</string>
 
     <!--Task Status-->
     <string name="not_started">Not Started</string>

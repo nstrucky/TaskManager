@@ -1,17 +1,17 @@
 package com.ventoray.taskmanager.web;
 
 import android.content.Context;
+import android.support.annotation.StringDef;
 import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -29,18 +29,26 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
-import static com.ventoray.taskmanager.web.Task.STATUS_DONE;
-import static com.ventoray.taskmanager.web.Task.STATUS_ERROR;
-import static com.ventoray.taskmanager.web.Task.STATUS_NOT_STARTED;
 import static com.ventoray.taskmanager.web.WebApiConstants.TEST_API_KEY;
 
 /**
  * Created by Nick on 7/8/2018.
  */
 
-public class WebQueryUtils {
+@Retention(RetentionPolicy.SOURCE)
+@StringDef({
+        WebApiConstants.HttpMethod.GET,
+        WebApiConstants.HttpMethod.POST,
+        WebApiConstants.HttpMethod.PUT,
+        WebApiConstants.HttpMethod.DELETE
+})
+@interface HttpMethods {}
 
-    public static final String LOG_TAG = "WebQueryUtils";
+
+
+ class WebQueryUtils {
+
+    static final String LOG_TAG = "WebQueryUtils";
 
     /**
      * TODO implement a URI mather here possibly to determine which api calls to make.
@@ -49,12 +57,12 @@ public class WebQueryUtils {
 
 
 
-    public static Task[] makeHttpUrlRequest(URL url, SSLContext sslContext) {
+    static String makeHttpUrlRequest(URL url, SSLContext sslContext,
+                                           @HttpMethods String httpMethod, String postUrlParams) {
 
         InputStream in = null;
         String jsonToParse = null;
         HttpsURLConnection urlConnection = null;
-        Log.d(LOG_TAG, "Opening url connection for " + url.toString());
 
         try {
             urlConnection = (HttpsURLConnection) url.openConnection();
@@ -68,14 +76,19 @@ public class WebQueryUtils {
 
             //TODO remove test api key
             urlConnection.setRequestProperty("authorization", TEST_API_KEY);
-            Log.d(LOG_TAG, "Authorization: " +
-                    urlConnection.getRequestProperty("authorization"));
-
-            urlConnection.setRequestMethod(WebApiConstants.HttpMethod.GET);
+            urlConnection.setRequestMethod(httpMethod);
             urlConnection.connect();
 
-            Log.d(LOG_TAG, "response code " + urlConnection.getResponseCode() + "\n" +
-                    urlConnection.getResponseMessage());
+            if (httpMethod != null && httpMethod.equals(WebApiConstants.HttpMethod.POST) &&
+                    postUrlParams != null) {
+
+//                urlConnection.setDoOutput(true);
+                DataOutputStream write = new DataOutputStream(urlConnection.getOutputStream());
+                write.writeBytes(postUrlParams);
+                write.flush();
+                write.close();
+            }
+
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 in = urlConnection.getInputStream();
                 jsonToParse = getResponseFromHTTPUrl(in);
@@ -98,7 +111,7 @@ public class WebQueryUtils {
                 }
             }
         }
-        return parseTasksFromJson(jsonToParse);
+        return jsonToParse;
     }
 
 
@@ -126,57 +139,7 @@ public class WebQueryUtils {
         return stringBuilder.toString();
     }
 
-    /**
-     * Converts String of JSON from server into an array of Task objects
-     * @param jsonToParse
-     * @return array of Task Objects, returns null if json is null
-     */
-    private static Task[] parseTasksFromJson(String jsonToParse) {
-        Task[] tasks = null;
-        if (jsonToParse == null) {
-            return tasks;
-        }
 
-        try {
-            JSONObject fullJson = new JSONObject(jsonToParse);
-
-            JSONArray tasksJArray = fullJson.getJSONArray(WebApiConstants.HttpPath.TASKS);
-            if (tasksJArray != null) {
-                tasks = new Task[tasksJArray.length()];
-
-                for (int i = 0; i < tasks.length; i++) {
-                    JSONObject jsonObject = tasksJArray.getJSONObject(i);
-
-                    int uniqueId = Integer.valueOf(
-                            jsonObject.getString(WebApiConstants.DbVariables.UNIQUE_ID));
-                    String taskString = jsonObject.getString(WebApiConstants.DbVariables.TASK);
-                    int status = Integer.valueOf(
-                            jsonObject.getString(WebApiConstants.DbVariables.TASK_STATUS));
-                    String dateString = jsonObject.getString(WebApiConstants.DbVariables.CREATED_AT);
-
-                    if (taskString == null) {
-                        taskString = "";
-                    }
-
-                    if (status > STATUS_DONE || status < STATUS_NOT_STARTED) {
-                        status = STATUS_ERROR;
-                    }
-
-                    if (dateString == null) {
-                        dateString = "";
-                    }
-
-                    Task task = new Task(uniqueId, taskString, status, dateString);
-                    tasks[i] = task;
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return tasks;
-    }
 
 
     /**

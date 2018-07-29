@@ -7,30 +7,20 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.ventoray.taskmanager.R;
 import com.ventoray.taskmanager.ui.adapter.TaskListAdapter;
 import com.ventoray.taskmanager.web.Task;
-import com.ventoray.taskmanager.web.WebAsyncTask;
-import com.ventoray.taskmanager.web.WebQueryUtils;
+import com.ventoray.taskmanager.web.TaskWebApi;
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.ventoray.taskmanager.web.WebApiConstants.BASE_URL;
-
 public class TaskListActivity extends AppCompatActivity
         implements TaskListAdapter.OnTaskClickedListener,
-        WebAsyncTask.OnWebTaskCompleteListener {
+        TaskWebApi.OnTasksRetrievedListener {
 
     public static final String TASK_PARCELABLE_KEY =
             "com.ventoray.taskmanager.ui.TaskListActivity.task_parcelable_key";
@@ -49,20 +39,7 @@ public class TaskListActivity extends AppCompatActivity
         setUpActionBar();
         setUpRecyclerView();
 
-        try {
-            URL url = new URL(BASE_URL + "/tasks");
-            new WebAsyncTask(this, WebQueryUtils.generateSSLContext(this)).execute(url);
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
+        new TaskWebApi().getUsersTasks(this, this);
     }
 
     private void setUpRecyclerView() {
@@ -100,7 +77,7 @@ public class TaskListActivity extends AppCompatActivity
      * @param tasks
      */
     @Override
-    public void onWebTaskComplete(Task[] tasks) {
+    public void onTasksRetrieved(Task[] tasks) {
         if (tasks == null || tasks.length < 1) {
             Toast.makeText(this, "No tasks retrieved, Task[] is null",
                     Toast.LENGTH_SHORT).show();
