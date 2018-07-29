@@ -77,7 +77,7 @@ public class TaskListActivity extends AppCompatActivity
      * @param tasks
      */
     @Override
-    public void onTasksRetrieved(Task[] tasks) {
+    public void onTasksRetrieved(Task[] tasks, boolean serverError, String message) {
         if (tasks == null || tasks.length < 1) {
             Toast.makeText(this, "No tasks retrieved, Task[] is null",
                     Toast.LENGTH_SHORT).show();
@@ -91,6 +91,14 @@ public class TaskListActivity extends AppCompatActivity
 
         if (taskList == null) {
             taskList = new ArrayList<>();
+        }
+
+        if (message != null) {
+            Log.i(LOG_TAG, message);
+        }
+
+        if (serverError) {
+            Log.e(LOG_TAG, "Server Error occurred");
         }
 
         taskList.clear();

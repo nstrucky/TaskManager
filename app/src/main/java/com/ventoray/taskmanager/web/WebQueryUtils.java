@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -30,6 +29,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import static com.ventoray.taskmanager.web.WebApiConstants.TEST_API_KEY;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * Created by Nick on 7/8/2018.
@@ -49,13 +50,6 @@ import static com.ventoray.taskmanager.web.WebApiConstants.TEST_API_KEY;
  class WebQueryUtils {
 
     static final String LOG_TAG = "WebQueryUtils";
-
-    /**
-     * TODO implement a URI mather here possibly to determine which api calls to make.
-     * In conjunction with the HTTP request method (i.e. GET, POST, PUT, DELETE)
-     */
-
-
 
     static String makeHttpUrlRequest(URL url, SSLContext sslContext,
                                            @HttpMethods String httpMethod, String postUrlParams) {
@@ -82,6 +76,8 @@ import static com.ventoray.taskmanager.web.WebApiConstants.TEST_API_KEY;
             if (httpMethod != null && httpMethod.equals(WebApiConstants.HttpMethod.POST) &&
                     postUrlParams != null) {
 
+                Log.i(LOG_TAG, postUrlParams);
+
 //                urlConnection.setDoOutput(true);
                 DataOutputStream write = new DataOutputStream(urlConnection.getOutputStream());
                 write.writeBytes(postUrlParams);
@@ -89,7 +85,9 @@ import static com.ventoray.taskmanager.web.WebApiConstants.TEST_API_KEY;
                 write.close();
             }
 
-            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            int responseCode = urlConnection.getResponseCode();
+
+            if (responseCode == HTTP_OK || responseCode == HTTP_CREATED) {
                 in = urlConnection.getInputStream();
                 jsonToParse = getResponseFromHTTPUrl(in);
             } else {

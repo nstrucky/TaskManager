@@ -2,6 +2,7 @@ package com.ventoray.taskmanager.ui
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.ventoray.taskmanager.R
@@ -17,7 +18,6 @@ class CreateTaskActivity : TaskWebApi.OnTaskCreatedListener, AppCompatActivity()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         button_save.setOnClickListener(View.OnClickListener {
-            Toast.makeText(this, "Tada", Toast.LENGTH_SHORT).show()
             saveNewTask()
         })
     }
@@ -25,15 +25,19 @@ class CreateTaskActivity : TaskWebApi.OnTaskCreatedListener, AppCompatActivity()
 
     fun saveNewTask() {
         val taskName : String = textInputLayout_task_name.editText?.text.toString()
-        val status : String = textInputLayout_status.editText?.text.toString()
-
-        val urlPostParams : String = "task=" + taskName + "&" + "status=" + status
-
-        TaskWebApi().createTask(urlPostParams, this, this)
+        TaskWebApi().createTask(taskName, this, this)
 
     }
 
-    override fun onTaskCreated(taskId: Int, message: String?) {
-        //for now do nothing
+    override fun onTaskCreated(taskId: Int, serverError : Boolean, message: String?) {
+        if (serverError) {
+            Toast.makeText(this, "Error creating task.", Toast.LENGTH_SHORT)
+                    .show()
+        }
+
+        Log.i("CreateTaskActivity", message)
+        Log.i("CreateTaskActivity", "Task created: " + taskId)
+        Log.i("CreateTaskActivity", "Server Error: " + serverError)
+
     }
 }

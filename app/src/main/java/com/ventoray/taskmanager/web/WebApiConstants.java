@@ -21,6 +21,13 @@ public class WebApiConstants {
 //        public static final String SINGLE_TASK = "tasks/:id";
     }
 
+    class JSONResponseKey {
+        static final String MESSAGE = "message";
+        static final String ERROR = "error";
+        static final String TASKS = "tasks";
+        static final String TASK_ID = "task_id";
+    }
+
     class HttpParam {
         public static final String NAME = "name";
         public static final String EMAIL = "email";
@@ -28,7 +35,7 @@ public class WebApiConstants {
         public static final String TASK = "task";
     }
 
-    public class HttpMethod {
+    class HttpMethod {
         public static final String POST = "POST";
         public static final String GET = "GET";
         public static final String PUT = "PUT";
