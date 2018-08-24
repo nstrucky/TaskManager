@@ -32,6 +32,15 @@ public class Task implements Parcelable {
         this.mysqlTimestamp = mysqlTimestamp;
     }
 
+
+    public int getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(int uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
     public String getTaskName() {
         return taskName;
     }

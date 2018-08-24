@@ -73,8 +73,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
             urlConnection.setRequestMethod(httpMethod);
             urlConnection.connect();
 
-            if (httpMethod != null && httpMethod.equals(WebApiConstants.HttpMethod.POST) &&
-                    postUrlParams != null) {
+            if (httpMethod != null && ((httpMethod.equals(WebApiConstants.HttpMethod.POST) &&
+                    postUrlParams != null) || httpMethod.equals(WebApiConstants.HttpMethod.PUT))) {
 
                 Log.i(LOG_TAG, postUrlParams);
 

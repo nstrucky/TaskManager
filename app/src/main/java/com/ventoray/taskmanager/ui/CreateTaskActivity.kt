@@ -9,7 +9,7 @@ import com.ventoray.taskmanager.R
 import com.ventoray.taskmanager.web.TaskWebApi
 import kotlinx.android.synthetic.main.activity_create_task.*
 
-class CreateTaskActivity : TaskWebApi.OnTaskCreatedListener, AppCompatActivity() {
+class CreateTaskActivity : TaskWebApi.OnTaskEditedListener, AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +33,10 @@ class CreateTaskActivity : TaskWebApi.OnTaskCreatedListener, AppCompatActivity()
         if (serverError) {
             Toast.makeText(this, "Error creating task.", Toast.LENGTH_SHORT)
                     .show()
+        } else {
+            Toast.makeText(this, "Task Created", Toast.LENGTH_SHORT)
+                    .show()
+            finish()
         }
 
         Log.i("CreateTaskActivity", message)

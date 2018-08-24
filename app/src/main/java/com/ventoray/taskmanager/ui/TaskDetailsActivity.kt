@@ -3,13 +3,16 @@ package com.ventoray.taskmanager.ui
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import com.ventoray.taskmanager.R
 import com.ventoray.taskmanager.ui.TaskListActivity.TASK_PARCELABLE_KEY
 import com.ventoray.taskmanager.web.Task
 import com.ventoray.taskmanager.web.Task.*
+import com.ventoray.taskmanager.web.TaskWebApi
 import kotlinx.android.synthetic.main.activity_task_details.*
 
-class TaskDetailsActivity : AppCompatActivity() {
+class TaskDetailsActivity : TaskWebApi.OnTaskEditedListener, AppCompatActivity() {
+
 
     var task : Task = Task()//there must be another way to initialize a variable for this scope
     var taskStatus : Int = 0
@@ -72,6 +75,18 @@ class TaskDetailsActivity : AppCompatActivity() {
             }
         }
         textView_title.setText(statusString)
+
+        task.status = taskStatus
+        TaskWebApi().updateTask(task, this, this)
+
+
+
     }
+
+    override fun onTaskCreated(taskId: Int, serverError: Boolean, message: String?) {
+
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
 
 }

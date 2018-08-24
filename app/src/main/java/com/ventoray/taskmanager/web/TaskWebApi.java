@@ -19,10 +19,10 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 
 import static com.ventoray.taskmanager.web.JSONParser.TYPE_BOOLEAN;
-import static com.ventoray.taskmanager.web.JSONParser.TYPE_DOUBLE;
 import static com.ventoray.taskmanager.web.JSONParser.TYPE_INT;
 import static com.ventoray.taskmanager.web.JSONParser.TYPE_STRING;
 import static com.ventoray.taskmanager.web.WebApiConstants.BASE_URL;
+import static com.ventoray.taskmanager.web.WebApiConstants.DbVariables.TASK_STATUS;
 import static com.ventoray.taskmanager.web.WebApiConstants.HttpParam.TASK;
 import static com.ventoray.taskmanager.web.WebApiConstants.HttpPath.TASKS;
 import static com.ventoray.taskmanager.web.WebApiConstants.JSONResponseKey.ERROR;
@@ -39,7 +39,7 @@ public class TaskWebApi {
         void onTasksRetrieved(Task[] tasks, boolean serverError, String message);
     }
 
-    public interface OnTaskCreatedListener {
+    public interface OnTaskEditedListener {
         void onTaskCreated(int taskId, boolean serverError, String message);
     }
 
@@ -73,7 +73,7 @@ public class TaskWebApi {
      * @param context
      * @param listener
      */
-    public void createTask(String taskName, Context context, OnTaskCreatedListener listener) {
+    public void createTask(String taskName, Context context, OnTaskEditedListener listener) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -89,7 +89,7 @@ public class TaskWebApi {
 
         try {
             URL url = new URL(BASE_URL + "/tasks");
-            new CreateTaskAsyncTask(urlPostParams,
+            new CreateOrPostAsyncTask(urlPostParams, WebApiConstants.HttpMethod.POST,
                     WebQueryUtils.generateSSLContext(context),
                     listener)
                     .execute(url);
@@ -106,11 +106,47 @@ public class TaskWebApi {
         }
     }
 
-    public void deleteTask() {
+    public void updateTask(Task task, Context context, OnTaskEditedListener listener) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String taskName = task.getTaskName();
+        String taskStatus = String.valueOf(task.getStatus());
+        int taskId = task.getUniqueId();
 
+        try {
+            stringBuilder.append(URLEncoder.encode(TASK, "UTF-8"))
+            .append("=")
+            .append(URLEncoder.encode(taskName, "UTF-8"))
+            .append("&")
+            .append(URLEncoder.encode(TASK_STATUS, "UTF-8"))
+            .append("=")
+            .append(URLEncoder.encode(taskStatus, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        String urlPostParams = stringBuilder.toString();
+
+        try {
+            URL url = new URL(BASE_URL + "/tasks/" + taskId);
+            new CreateOrPostAsyncTask(urlPostParams, WebApiConstants.HttpMethod.PUT,
+                    WebQueryUtils.generateSSLContext(context),
+                    listener)
+                    .execute(url);
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void updateTask(Task task) {
+
+    public void deleteTask() {
 
     }
 
@@ -150,16 +186,18 @@ public class TaskWebApi {
     /**
      *
      */
-    static class CreateTaskAsyncTask extends AsyncTask<URL, Void, String> {
+    static class CreateOrPostAsyncTask extends AsyncTask<URL, Void, String> {
 
-        String postUrlParams;
-        OnTaskCreatedListener listener;
+        String urlParams;
+        OnTaskEditedListener listener;
         SSLContext sslContext;
+        String httpMethod;
 
 
-        public CreateTaskAsyncTask(String postUrlParams,
-                                   SSLContext sslContext, OnTaskCreatedListener listener) {
-            this.postUrlParams = postUrlParams;
+        public CreateOrPostAsyncTask(String urlParams, String httpMethod,
+                                     SSLContext sslContext, OnTaskEditedListener listener) {
+            this.urlParams = urlParams;
+            this.httpMethod = httpMethod;
             this.sslContext = sslContext;
             this.listener = listener;
         }
@@ -169,8 +207,8 @@ public class TaskWebApi {
             URL url = urls[0];
             return WebQueryUtils.makeHttpUrlRequest(url,
                     sslContext,
-                    WebApiConstants.HttpMethod.POST,
-                    postUrlParams);
+                    httpMethod,
+                    urlParams);
         }
 
         @Override
@@ -185,12 +223,15 @@ public class TaskWebApi {
 
             expectedResults.add(new Pair<>(MESSAGE, TYPE_STRING));
             expectedResults.add(new Pair<>(ERROR, TYPE_BOOLEAN));
-            expectedResults.add(new Pair<>(TASK_ID, TYPE_INT));
+
+            if (httpMethod.equals(WebApiConstants.HttpMethod.POST)) {
+                expectedResults.add(new Pair<>(TASK_ID, TYPE_INT));
+            }
 
             Bundle bundle = JSONParser.parseJsonResponse(jsonToParse, expectedResults);
             String message = bundle.getString(MESSAGE);
             boolean serverError = bundle.getBoolean(ERROR);
-            int taskCreated = bundle.getInt(TASK_ID);
+            int taskCreated = bundle.getInt(TASK_ID, 0);
 
             if (message == null) message = "no message!";
 
